@@ -11,38 +11,62 @@ Focus on an implementation that achieves consensus consistently. Remember to che
 
  */
 
-import java.util.Random;
+import java.util.*;
 
 
 class Node implements Runnable {
+   static final double reception = 0.1;
+
    private Thread t;
-   private String threadName;
+   private Integer idNum;              // our own node id
+   private Integer totalNodes;         // total number of nodes that we have
+   private Long nodeNum;               // the random number we generated
+   private List<Integer> nearbyNodes;  // the nodes which we can send messages to
    
-   Node( String name) {
-      threadName = name;
-      System.out.println("Creating " +  threadName );
+   Node(Integer name, Integer totalNodesNum, Long randNum) {
+      this.idNum = name;
+      this.totalNodes = totalNodesNum;
+      this.nodeNum = randNum;
+      this.nearbyNodes = getNearbyNodes();
    }
    
    public void run() {
-      System.out.println("Running " +  threadName );
+      System.out.println("Running " +  idNum );
       try {
          for(int i = 4; i > 0; i--) {
-            System.out.println("Thread: " + threadName + ", " + i);
+            System.out.println("Thread: " + idNum + ", " + i);
             // Let the thread sleep for a while.
             Thread.sleep(50);
          }
       } catch (InterruptedException e) {
-         System.out.println("Thread " +  threadName + " interrupted.");
+         System.out.println("Thread " +  idNum + " interrupted.");
       }
-      System.out.println("Thread " +  threadName + " exiting.");
+      System.out.println("Thread " +  idNum + " exiting.");
    }
    
    public void start () {
-      System.out.println("Starting " +  threadName );
+      System.out.println("Starting " +  idNum );
       if (t == null) {
-         t = new Thread (this, threadName);
+         t = new Thread(this, idNum.toString());
          t.start ();
       }
+   }
+
+   /**
+    * Returns a list of indicies indicating which nodes a node can talk to
+    * this is not efficient for really long lists
+    * since we're shuffling the whole list but only taking 10% of i
+    */
+   List<Integer> getNearbyNodes() {
+         // have a list of all the ids so we can sample and shuffle them
+         List<Integer> idNumList = new ArrayList<Integer>(totalNodes);
+         for (int i = 0; i < totalNodes; i++) {
+            if (i == idNum) continue;  // don't include self as one of the nearby nodes
+            idNumList.add(i);
+         }
+         Collections.shuffle(idNumList);
+         // assume that each node can talk to at least one other node
+         return idNumList.subList(0, Math.max(1, (int) Math.floor(totalNodes * reception)));
    }
 }
 
@@ -53,7 +77,7 @@ public class Main {
 
       try {
          numNodes = Integer.parseInt(args[0]);  // raises NumberFormatException or IndexOutOfBoundsException
-      } catch (NumberFormatException | IndexOutOfBoundsException | AssertionError e) {
+      } catch (NumberFormatException | IndexOutOfBoundsException e) {
          System.err.println("Number of nodes must be a number greater than 0.");
          System.exit(1);
       }
@@ -63,19 +87,23 @@ public class Main {
          System.exit(1);
       };
 
-      System.out.printf("Generating %d nodes\n", numNodes);
-
+      // we're gonna store all the nodes here
+      Node[] nodesList = new Node[numNodes];
+      // keep track of what the true max is for debug purposes
+      long actualMax = Long.MIN_VALUE;
       Random rand = new Random();
-      long n = new Random().nextLong();
-      System.out.println(n);
-      System.out.printf("%s arguments were passed in\n", args.length);
-      for (String s: args) {
-         System.out.println(s);
+
+      for (int i = 0; i < numNodes; i++) {
+         long n = rand.nextLong();
+         System.out.println(n);
+         nodesList[i] = new Node(i, numNodes, n);
+         nodesList[i].start();
+         if (n > actualMax) {
+            actualMax = n;
+         }
       }
-      Node R1 = new Node( "Thread-1");
-      R1.start();
-      
-      Node R2 = new Node( "Thread-2");
-      R2.start();
-   }   
+
+      System.out.printf("Generated %d nodes, with max value %d\n", numNodes, actualMax);
+
+   }
 }
