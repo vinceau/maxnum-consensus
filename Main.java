@@ -148,12 +148,11 @@ public class Main {
          }
       }
 
+      System.out.printf("Generated %d nodes, with max value %d\n", numNodes, actualMax);
       // now start them all
       for (int i = 0; i < numNodes; i++) {
          nodesList[i].start();
       }
-
-      System.out.printf("Generated %d nodes, with max value %d\n", numNodes, actualMax);
 
    }
 }
