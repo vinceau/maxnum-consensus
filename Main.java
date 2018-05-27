@@ -77,7 +77,7 @@ class Node implements Runnable {
             }
             // for each of the messages we receive update our local dictionary
             Long[] newValues = this.messageList.poll(500, TimeUnit.MILLISECONDS);
-            if (newValues == null) break; // the timeout was reached
+            if (newValues == null) break; // the timeout was reached so just print our own value
             changed = updateDict(newValues);
          }
       } catch (InterruptedException e) {
