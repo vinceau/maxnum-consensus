@@ -87,11 +87,8 @@ class Node implements Runnable {
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
       }
-      if (debug) {
-         System.out.printf("Node %d: %d\n%s\n", idNum, allValues[idNum], Arrays.toString(this.allValues));
-      } else {
-         System.out.printf("Node %d: %d\n", idNum, allValues[idNum]);
-      }
+//    System.out.printf("Node %d's dict: %s\n", idNum, Arrays.toString(this.allValues));
+      System.out.printf("Node %d: %d\n", idNum, allValues[idNum]);
    }
    
    public void start () {
