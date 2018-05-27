@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 
 
 class Node implements Runnable {
-   static final boolean debug = true;
+   static final boolean debug = false;
    static final double reception = 0.1;
 
    private Thread t;
