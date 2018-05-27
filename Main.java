@@ -90,8 +90,11 @@ class Node implements Runnable {
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
       }
-//    System.out.printf("Node %d: %d\n%s\n", idNum, allValues[idNum], Arrays.toString(this.allValues));
-      System.out.printf("Node %d: %d\n", idNum, allValues[idNum]);
+      if (debug) {
+         System.out.printf("Node %d: %d\n%s\n", idNum, allValues[idNum], Arrays.toString(this.allValues));
+      } else {
+         System.out.printf("Node %d: %d\n", idNum, allValues[idNum]);
+      }
    }
    
    public void start () {
