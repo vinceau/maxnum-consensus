@@ -42,9 +42,6 @@ class Node implements Runnable {
    }
 
    boolean updateDict(Long[] newValues) {
-//    if (debug) {
-//       System.out.printf("Node %d previous values: %s\n", this.idNum, Arrays.toString(this.allValues));
-//    }
       boolean changed = false;
       long currentMax = Long.MIN_VALUE;
       for (int i = 0; i < totalNodes; i++) {
@@ -63,9 +60,9 @@ class Node implements Runnable {
       if (allValues[idNum] < currentMax) {
          allValues[idNum] = currentMax;
       }
-//    if (debug) {
-//       System.out.printf("Node %d new values: %s\n", this.idNum, Arrays.toString(this.allValues));
-//    }
+      if (debug && changed) {
+         System.out.printf("Node %d's new values: %s\n", this.idNum, Arrays.toString(this.allValues));
+      }
       return changed;
    }
    
@@ -107,7 +104,7 @@ class Node implements Runnable {
    /**
     * Returns a list of indicies indicating which nodes a node can talk to
     * this is not efficient for really long lists
-    * since we're shuffling the whole list but only taking 10% of i
+    * since we're shuffling the whole list but only taking 10% of it
     */
    List<Integer> getNearbyNodes() {
          // have a list of all the ids so we can sample and shuffle them
@@ -116,12 +113,12 @@ class Node implements Runnable {
             if (i == idNum) continue;  // don't include self as one of the nearby nodes
             idNumList.add(i);
          }
-//       System.out.println(idNumList);
          Collections.shuffle(idNumList);
          // assume that each node can talk to at least one other node
          return idNumList.subList(0, Math.max(1, (int) Math.floor(totalNodes * reception)));
    }
 }
+
 
 public class Main {
 
@@ -149,7 +146,6 @@ public class Main {
       // first declare and initialize them
       for (int i = 0; i < numNodes; i++) {
          long n = rand.nextLong();
-//       System.out.println(n);
          nodesList[i] = new Node(i, n, nodesList);
          if (n > actualMax) {
             actualMax = n;
