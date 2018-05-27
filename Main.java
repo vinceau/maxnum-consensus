@@ -145,7 +145,7 @@ public class Main {
          }
       }
 
-      System.out.printf("Generated %d nodes, with max value %d\n", numNodes, actualMax);
+      System.out.printf("Generated %d nodes, with true max value %d\n", numNodes, actualMax);
       // now start them all
       for (int i = 0; i < numNodes; i++) {
          nodesList[i].start();
