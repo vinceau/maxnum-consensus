@@ -41,10 +41,11 @@ class Node implements Runnable {
       }
    }
 
-   void updateDict(Long[] newValues) {
-      if (debug) {
-         System.out.printf("Node %d previous values: %s\n", this.idNum, Arrays.toString(this.allValues));
-      }
+   boolean updateDict(Long[] newValues) {
+//    if (debug) {
+//       System.out.printf("Node %d previous values: %s\n", this.idNum, Arrays.toString(this.allValues));
+//    }
+      boolean changed = false;
       long currentMax = Long.MIN_VALUE;
       for (int i = 0; i < totalNodes; i++) {
          if (i == idNum) continue;  // we can update our own value tyvm
@@ -52,6 +53,7 @@ class Node implements Runnable {
          // update our own dict if the new value is greater or our value is empty
          if (allValues[i] == null || allValues[i] < newValues[i]) {
             allValues[i] = newValues[i];
+            changed = true;
             if (currentMax < newValues[i]) {
                currentMax = newValues[i];
             }
@@ -61,31 +63,34 @@ class Node implements Runnable {
       if (allValues[idNum] < currentMax) {
          allValues[idNum] = currentMax;
       }
-      if (debug) {
-         System.out.printf("Node %d new values: %s\n", this.idNum, Arrays.toString(this.allValues));
-      }
+//    if (debug) {
+//       System.out.printf("Node %d new values: %s\n", this.idNum, Arrays.toString(this.allValues));
+//    }
+      return changed;
    }
    
    public void run() {
       try {
+         boolean changed = true;
          while (true) {
             // for each of the nodes in nearbyNodes, send them our dictionary
             for (Integer n: nearbyNodes) {
-               if (allValues[n] == null || allValues[n] < allValues[idNum]) {
+               if (changed && (allValues[n] == null || allValues[n] < allValues[idNum])) {
                   this.nodeList[n].messageList.put(allValues);
                   if (debug) {
-                     System.out.printf("Node %d -> %d: %s\n", this.idNum, n, Arrays.toString(this.allValues));
+                     System.out.printf("Node %d (%d) -> %d: %s\n", this.idNum, this.allValues[this.idNum], n, Arrays.toString(this.allValues));
                   }
                }
             }
             // for each of the messages we receive update our local dictionary
-            Long[] newValues = this.messageList.poll(4, TimeUnit.SECONDS);
+            Long[] newValues = this.messageList.poll(250, TimeUnit.MILLISECONDS);
             if (newValues == null) break; // the timeout was reached
-            updateDict(newValues);
+            changed = updateDict(newValues);
          }
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
       }
+//    System.out.printf("Node %d: %d\n%s\n", idNum, allValues[idNum], Arrays.toString(this.allValues));
       System.out.printf("Node %d: %d\n", idNum, allValues[idNum]);
    }
    
