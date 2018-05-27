@@ -43,7 +43,6 @@ class Node implements Runnable {
 
    boolean updateDict(Long[] newValues) {
       boolean changed = false;
-      long currentMax = Long.MIN_VALUE;
       for (int i = 0; i < totalNodes; i++) {
          if (i == idNum) continue;  // we can update our own value tyvm
          if (newValues[i] == null) continue;
@@ -51,14 +50,11 @@ class Node implements Runnable {
          if (allValues[i] == null || allValues[i] < newValues[i]) {
             allValues[i] = newValues[i];
             changed = true;
-            if (currentMax < newValues[i]) {
-               currentMax = newValues[i];
+            if (allValues[idNum] < newValues[i]) {
+               // this new value is greater than what we have so do a self update
+               allValues[idNum] = newValues[i];
             }
          }
-      }
-      // should we update our own max value?
-      if (allValues[idNum] < currentMax) {
-         allValues[idNum] = currentMax;
       }
       if (debug && changed) {
          System.out.printf("Node %d's new values: %s\n", this.idNum, Arrays.toString(this.allValues));
